@@ -9,7 +9,7 @@ This is a practical example for developers who want to see how to implement AI-g
 
 ## Tech Stack
 
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 - **Language**: TypeScript
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
 - **AI**: [Vercel AI SDK](https://sdk.vercel.ai/docs) for type-safe AI chat

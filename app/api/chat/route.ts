@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { smoothStream, streamText } from "ai";
 import { z } from "zod";
 
 // OpenWeather API base URL and key
@@ -73,6 +73,11 @@ export async function POST(req: Request) {
       },
     },
     maxSteps: 2,
+    experimental_transform: [
+      smoothStream({
+        chunking: "word",
+      }),
+    ],
   });
 
   return result.toDataStreamResponse();

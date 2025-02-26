@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <header>
-          <div className="max-w-7xl mx-auto px-4 py-4 fixed top-0">
+          <div className="w-full mx-auto px-4 py-4 fixed top-0 bg-white bg-opacity-80 backdrop-blur-sm z-10">
             <h1 className="text-xl font-semibold">Claude Weather</h1>
           </div>
         </header>

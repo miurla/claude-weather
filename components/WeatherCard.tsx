@@ -65,7 +65,7 @@ const WeatherCard = ({ weatherData, changeWeather }: WeatherCardProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center p-6">
+    <div className="flex flex-col items-center px-6 pt-6">
       <div
         className={`${getBackgroundClass(
           weatherData.condition
