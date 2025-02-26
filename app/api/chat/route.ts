@@ -2,8 +2,8 @@ import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { z } from "zod";
 
-// Weather API base URL
-const WEATHER_API_BASE_URL = "https://api.weatherapi.com/v1";
+// OpenWeather API base URL and key
+const WEATHER_API_BASE_URL = "https://api.openweathermap.org/data/2.5";
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
 // Allow streaming responses up to 30 seconds
@@ -12,31 +12,33 @@ export const maxDuration = 30;
 // Fetch weather data
 async function fetchWeatherData(location: string) {
   try {
-    // Use forecast endpoint to get current weather and forecast data
-    const response = await fetch(
-      `${WEATHER_API_BASE_URL}/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(
+    // First, get coordinates for the location
+    const geoResponse = await fetch(
+      `${WEATHER_API_BASE_URL}/weather?q=${encodeURIComponent(
         location
-      )}&days=1&aqi=no&alerts=no`
+      )}&appid=${WEATHER_API_KEY}&units=metric`
     );
 
-    if (!response.ok) {
-      throw new Error(`Weather API responded with status: ${response.status}`);
+    if (!geoResponse.ok) {
+      throw new Error(
+        `Weather API responded with status: ${geoResponse.status}`
+      );
     }
 
-    const data = await response.json();
+    const data = await geoResponse.json();
 
     // Format the result to match the expected format for the WeatherApp component
     return {
-      location: data.location.name,
+      location: data.name,
       current: {
-        temperature: data.current.temp_c,
-        condition: data.current.condition.text,
-        humidity: data.current.humidity,
-        windSpeed: data.current.wind_mph,
+        temperature: data.main.temp,
+        condition: data.weather[0].description,
+        humidity: data.main.humidity,
+        windSpeed: data.wind.speed,
       },
       forecast: {
-        high: data.forecast.forecastday[0].day.maxtemp_c,
-        low: data.forecast.forecastday[0].day.mintemp_c,
+        high: data.main.temp_max,
+        low: data.main.temp_min,
       },
     };
   } catch (error) {
