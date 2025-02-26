@@ -72,6 +72,7 @@ export async function POST(req: Request) {
         },
       },
     },
+    maxSteps: 2,
   });
 
   return result.toDataStreamResponse();

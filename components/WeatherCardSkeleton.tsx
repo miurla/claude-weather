@@ -63,6 +63,14 @@ const WeatherCardSkeleton = () => {
             <div className="h-8 w-12 bg-gray-200 rounded-r-lg"></div>
           </div>
         </div>
+
+        {/* Assistant message skeleton */}
+        <div className="h-[76px] mt-4 w-full invisible">
+          <div className="p-4 bg-white rounded-xl shadow-sm animate-[pulse_2s_ease-in-out_infinite]">
+            <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
+            <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+          </div>
+        </div>
       </div>
     </div>
   );
