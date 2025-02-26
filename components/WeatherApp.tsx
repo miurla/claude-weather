@@ -4,6 +4,10 @@ import { useChat } from "@ai-sdk/react";
 import { Search } from "lucide-react";
 import WeatherCard from "./WeatherCard";
 import WeatherCardSkeleton from "./WeatherCardSkeleton";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+type Status = "streaming" | "submitted" | "ready" | "error";
 
 interface WeatherDataType {
   location: string;
@@ -161,77 +165,107 @@ export default function WeatherApp() {
     );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] max-w-3xl min-w-[480px] mx-auto relative">
-      {/* Main content area */}
-      <div className="flex-grow overflow-y-auto pb-20">
-        <div className="flex flex-col items-center justify-center pt-16">
-          <div className="w-[480px]">
-            {/* Display weather data */}
-            {weatherData ? (
-              <div>
-                <WeatherCard
-                  weatherData={weatherData}
-                  changeWeather={handleChangeWeather}
+    <main className="flex flex-col items-center min-h-screen">
+      {weatherData || status === "streaming" || status === "submitted" ? (
+        <>
+          {/* Main content area */}
+          <div className="flex-grow w-full overflow-y-auto pb-20">
+            <div className="flex flex-col items-center justify-center pt-16">
+              <div className="w-[480px]">
+                {weatherData ? (
+                  <>
+                    <WeatherCard
+                      weatherData={weatherData}
+                      changeWeather={handleChangeWeather}
+                    />
+                    {/* Assistant message container */}
+                    <div className="mt-4">
+                      {(status === "streaming" || status === "ready") &&
+                        lastTextMessage && (
+                          <div className="p-4 bg-white rounded-xl">
+                            <div className="text-gray-700 prose prose-sm max-w-none prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-li:my-0">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {lastTextMessage.content}
+                              </ReactMarkdown>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  </>
+                ) : (
+                  <WeatherCardSkeleton />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Input area (bottom) */}
+          <div className="fixed bottom-0 w-full bg-white">
+            <div className="max-w-[480px] mx-auto p-4">
+              <form
+                onSubmit={handleSubmit}
+                className="bg-neutral-100 rounded-full p-2 flex items-center"
+              >
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Enter city name (e.g., Tokyo, New York)"
+                  className="flex-grow p-2 px-4 bg-transparent border-none outline-none"
+                  disabled={
+                    (status as Status) === "streaming" ||
+                    (status as Status) === "submitted"
+                  }
                 />
-                {/* Fixed height container for assistant message */}
-                <div className="h-[120px] mt-4">
-                  {(status === "streaming" || status === "ready") &&
-                    lastTextMessage && (
-                      <div
-                        className={`p-4 bg-white rounded-xl transition-all duration-200 ease-in-out ${
-                          status === "streaming" ? "animate-pulse" : ""
-                        }`}
-                      >
-                        <p className="text-gray-700 line-clamp-3">
-                          {lastTextMessage.content}
-                        </p>
-                      </div>
-                    )}
-                </div>
-              </div>
-            ) : status === "streaming" || status === "submitted" ? (
-              <div>
-                <WeatherCardSkeleton />
-                {/* Empty space to match the height of the message container */}
-                <div className="h-[120px]"></div>
-              </div>
-            ) : (
-              <div>
-                <div className="text-center p-8 bg-gray-100 rounded-lg">
-                  Enter a city name to see the weather
-                </div>
-                {/* Empty space to match the height of the message container */}
-                <div className="h-[120px]"></div>
-              </div>
-            )}
+                <button
+                  type="submit"
+                  className="bg-neutral-100 text-neutral-800 p-2 rounded-full hover:bg-neutral-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={
+                    (status as Status) === "streaming" ||
+                    (status as Status) === "submitted"
+                  }
+                  aria-label="Search"
+                >
+                  <Search size={20} />
+                </button>
+              </form>
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Initial centered form */
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="w-[480px] p-4">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-neutral-100 rounded-full p-2 flex items-center"
+            >
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Enter city name (e.g., Tokyo, New York)"
+                className="flex-grow p-2 px-4 bg-transparent border-none outline-none"
+                disabled={
+                  (status as Status) === "streaming" ||
+                  (status as Status) === "submitted"
+                }
+              />
+              <button
+                type="submit"
+                className="bg-neutral-100 text-neutral-800 p-2 rounded-full hover:bg-neutral-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={
+                  (status as Status) === "streaming" ||
+                  (status as Status) === "submitted"
+                }
+                aria-label="Search"
+              >
+                <Search size={20} />
+              </button>
+            </form>
           </div>
         </div>
-      </div>
-
-      {/* Input area (fixed at the bottom) */}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-neutral-100 rounded-full p-2 flex items-center"
-        >
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter city name (e.g., Tokyo, New York)"
-            className="flex-grow p-2 px-4 bg-transparent border-none outline-none"
-            disabled={status === "streaming" || status === "submitted"}
-          />
-          <button
-            type="submit"
-            className="bg-neutral-100 text-neutral-800 p-2 rounded-full hover:bg-neutral-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={status === "streaming" || status === "submitted"}
-            aria-label="Search"
-          >
-            <Search size={20} />
-          </button>
-        </form>
-      </div>
-    </div>
+      )}
+    </main>
   );
 }
